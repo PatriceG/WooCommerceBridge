@@ -78,7 +78,7 @@ def createDatabase():
         fields = '''
         Id_Produit INTEGER,
         Quantite BYTE,
-        NumCommande LONG
+        Id_Commande LONG
         '''
         connection.cursor().execute('CREATE TABLE woocommerce_produit (%s);' % fields).commit()
         return connection
