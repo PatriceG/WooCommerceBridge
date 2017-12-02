@@ -14,6 +14,7 @@ La librairie woocommerce est embarquée car elle a été modifiée pour notre us
 Ajouter les variables d'environnement suivantes à Windows:
 
 `woo_consumer_key=consumer_key WooCommerce`
+
 `woo_consumer_secret=consumer_secret WooCommerce`
 
 L'application contrôle la présence de ces variables d'environnement au démarrage.
