@@ -17,6 +17,8 @@ Ajouter les variables d'environnement suivantes à Windows:
 
 `woo_consumer_secret=consumer_secret WooCommerce`
 
+'woo_bridge = (répertoire par défaut de woocommerce)
+
 L'application contrôle la présence de ces variables d'environnement au démarrage.
 
 ## Usage
@@ -30,8 +32,11 @@ Lancement par:
 Récupération des commandes dans les états suivants: 
 
 - pending
-- processing
 - on-hold
+
+Les commandes dans l'état processing ne sont pas récupérées.
+Cet état sert à discriminer les commandes traitées des autres.
+C'est la mise à jour locale (via aerogest-suite) qui effectue la mise à jour distante. (pending ou on-hold -> processing)
 
 Le fichier woocommerce.mdb est créé s'il n'est pas présent. Les tables sont vidées si le ficher est déjà existant. Les différents attributs nécessaires sont récupérés.
 

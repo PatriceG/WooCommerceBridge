@@ -49,7 +49,8 @@ def createDatabase():
         #vide la bdd
         cur = connection.cursor()
         cur.execute("DELETE FROM woocommerce_produit").commit()
-        cur.execute("DELETE FROM woocommerce_commande").commit()
+        cur.execute("DELETE FROM woocommerce_meta").commit()
+        cur.execute("DELETE FROM woocommerce_commande").commit()        
         cur.close()
         return connection         
     else:
@@ -81,8 +82,14 @@ def createDatabase():
         Id_Commande LONG
         '''
         connection.cursor().execute('CREATE TABLE woocommerce_produit (%s);' % fields).commit()
-        return connection
 
+        fields = '''
+        key_meta VARCHAR(30),
+        valeur_meta VARCHAR(30),        
+        Id_Commande LONG
+        '''        
+        connection.cursor().execute('CREATE TABLE woocommerce_meta (%s);' % fields).commit()
+        return connection
 
 def safeParseDate(d):
     """
@@ -114,8 +121,7 @@ def insertData(connection, order):
     type_paiement = order["payment_method_title"]
     date_paiement = safeParseDate(order["date_paid"])
     date_termine = safeParseDate(order["date_completed"])
-    commentaire = order["customer_note"]
-    
+    commentaire = order["customer_note"] 
 
     logging.debug("insertData: %s",num_commande)
     cur.execute("INSERT INTO woocommerce_commande VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(id_commande,num_commande,statut_commande,date_creation,prenom,nom,adresse,code_postal,ville,tel,email,type_paiement,date_paiement,date_termine,commentaire)).commit()
@@ -126,7 +132,12 @@ def insertData(connection, order):
         id_produit = line_item["product_id"]
         quantite = line_item["quantity"]
         cur.execute("INSERT INTO woocommerce_produit VALUES (?,?,?)",(id_produit,quantite,id_commande)).commit()
-    
+
+    #meta
+    for meta_item in order["meta_data"]:
+        valeur_meta = meta_item["value"]
+        key_meta = meta_item["key"]
+        cur.execute("INSERT INTO woocommerce_meta VALUES (?,?,?)",(key_meta,valeur_meta,id_commande)).commit()
     cur.close()
 
 def getOrdersByStatus(status):
@@ -190,7 +201,6 @@ def main():
     else:    
         connection = createDatabase()                    
         orders = getOrders()
-        print(orders)
         for order in orders:
             insertData(connection, order)
 
