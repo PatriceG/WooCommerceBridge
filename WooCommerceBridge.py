@@ -11,8 +11,6 @@ from datetime import datetime
 from woocommerce import API 
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
-level = logging.INFO
-logging.basicConfig(format='[%(asctime)-15s] %(levelname)s %(message)s', level=level, filename="WooCommerceBridge.log")
 
 def getEnv(key):
     """
@@ -28,6 +26,9 @@ def getEnv(key):
         sys.exit(1)
 
 
+level = logging.INFO
+logging.basicConfig(format='[%(asctime)-15s] %(levelname)s %(message)s', level=level, filename=getEnv("woo_bridge") + "WooCommerceBridge.log")
+
 #init de l'API WooCommerce 
 wcapi = API(
         url="https://www.aeroclub-avranches.org/wp2/",
@@ -38,12 +39,11 @@ wcapi = API(
         version="wc/v2"
     )
 
-
 def createDatabase():
     """
     Crée la bdd, les tables et vide les tables si la bdd existe déjà
     """
-    file = "woocommerce.mdb"
+    file = getEnv("woo_bridge") + "woocommerce.mdb"
     if(os.path.exists(file)):
         connection = pypyodbc.win_connect_mdb(file)
         #vide la bdd
@@ -84,7 +84,6 @@ def createDatabase():
         return connection
 
 
-
 def safeParseDate(d):
     """
     Parse une date sans planter si la chaine passée en param est nulle
@@ -116,6 +115,7 @@ def insertData(connection, order):
     date_paiement = safeParseDate(order["date_paid"])
     date_termine = safeParseDate(order["date_completed"])
     commentaire = order["customer_note"]
+    
 
     logging.debug("insertData: %s",num_commande)
     cur.execute("INSERT INTO woocommerce_commande VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(id_commande,num_commande,statut_commande,date_creation,prenom,nom,adresse,code_postal,ville,tel,email,type_paiement,date_paiement,date_termine,commentaire)).commit()
@@ -148,7 +148,6 @@ def getOrders():
     Retourne les commande selon les critères choisis
     """    
     orders = getOrdersByStatus("pending")
-    orders.extend(getOrdersByStatus("processing"))
     orders.extend(getOrdersByStatus("on-hold"))
     #orders.extend(getOrdersByStatus("any")) #TODO REMOVE!
     #affiche le nombre de commandes
@@ -190,12 +189,13 @@ def main():
         updateOrder(modif,etat)
     else:    
         connection = createDatabase()                    
-        orders = getOrders()        
+        orders = getOrders()
+        print(orders)
         for order in orders:
             insertData(connection, order)
 
         if(connection != None):
             connection.close()          
-
+    
 if __name__ == '__main__':
     main()
