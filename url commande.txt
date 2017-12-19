@@ -1,3 +1,0 @@
-
-
-https://www.aeroclub-avranches.org/wp2/wp-json/wc/v2/orders?consumer_key=ck_28b1fc5f3bf9fdf794f1cebd4320e3f5457545af&consumer_secret=cs_17dfa50b1a1eb8ecfab3a74fc8416f220e9df34b
