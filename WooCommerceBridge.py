@@ -9,41 +9,47 @@ import requests
 import time
 from datetime import datetime
 from woocommerce import API 
+import ConfigParser
+
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
-def getEnv(key):
+
+config = ConfigParser.ConfigParser()
+config.read("WooCommerceBridge.ini")
+
+def getConfig(section,key):
     """
-    Retourne la valeur de la variable d'env spécifiée, ou une erreur si non-définie
+    Retourne le paramètre de config spécifié, ou une erreur si non-défini
     """
     try:  
-        value = os.environ[key]        
+        value = config.get(section,key)      
         return value
     except KeyError: 
-        msg = "Variable d'environnement '{}' non definie!".format(key)
+        msg = "Paramètre de config '{}' non defini!".format(key)
         print(msg)
         logging.error(msg)
         sys.exit(1)
 
-
 level = logging.INFO
-logging.basicConfig(format='[%(asctime)-15s] %(levelname)s %(message)s', level=level, filename=getEnv("woo_bridge") + "WooCommerceBridge.log")
+logging.basicConfig(format='[%(asctime)-15s] %(levelname)s %(message)s', level=level, filename=getConfig("General","home_dir") + "WooCommerceBridge.log")
 
 #init de l'API WooCommerce 
 wcapi = API(
         url="https://www.aeroclub-avranches.org/wp2/",
-        consumer_key=getEnv("woo_consumer_key"),
-        consumer_secret=getEnv("woo_consumer_secret"),
+        consumer_key=getConfig("Auth","woo_consumer_key"),
+        consumer_secret=getConfig("Auth","woo_consumer_secret"),
         query_string_auth=True,
         wp_api=True,
         version="wc/v2"
     )
 
+
 def createDatabase():
     """
     Crée la bdd, les tables et vide les tables si la bdd existe déjà
     """
-    file = getEnv("woo_bridge") + "woocommerce.mdb"
+    file = getConfig("General","home_dir") + "woocommerce.mdb"
     if(os.path.exists(file)):
         connection = pypyodbc.win_connect_mdb(file)
         #vide la bdd

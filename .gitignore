@@ -102,6 +102,7 @@ ENV/
 
 #My files
 WooCommerceBridge.log
+WooCommerceBridge.ini
 woocommerce.mdb
 setEnv.bat
 ArchivesCommandes
