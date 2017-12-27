@@ -206,7 +206,7 @@ def main():
     modif = args.modifie
     etat = args.etat
 
-    logging.info("Arguments passés par le poste %s, modification commande %s avec l'état %s",getEnv("USERDOMAIN"),modif,etat)
+    logging.info("Arguments passés par le poste %s, modification commande %s avec l'état %s",os.environ["USERDOMAIN"],modif,etat)
 
     if modif is not None:
         updateOrder(modif,etat)
