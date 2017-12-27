@@ -7,10 +7,15 @@ import logging
 import pypyodbc
 import requests
 import time
+import urllib3
 from datetime import datetime
 from woocommerce import API 
 import ConfigParser
 
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+urllib3.disable_warnings(urllib3.exceptions.InsecurePlatformWarning)
+urllib3.disable_warnings(urllib3.exceptions.SNIMissingWarning)
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
@@ -41,7 +46,8 @@ wcapi = API(
         consumer_secret=getConfig("Auth","woo_consumer_secret"),
         query_string_auth=True,
         wp_api=True,
-        version="wc/v2"
+        version="wc/v2",
+        verify_ssl = False
     )
 
 
@@ -187,8 +193,6 @@ def updateOrder(order_id, order_status):
         logging.error(res)
         sys.exit(1)
     
-
-
 def main():           
     """
     Si aucun argument n'est passé: lit les commandes et les stocke dans la bdd woocommerce.mdb 
@@ -201,6 +205,8 @@ def main():
     
     modif = args.modifie
     etat = args.etat
+
+    logging.info("Arguments passés par le poste %s, modification commande %s avec l'état %s",getEnv("USERDOMAIN"),modif,etat)
 
     if modif is not None:
         updateOrder(modif,etat)
